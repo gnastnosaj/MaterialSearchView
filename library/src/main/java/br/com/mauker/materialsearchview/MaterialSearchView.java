@@ -95,7 +95,7 @@ public class MaterialSearchView extends FrameLayout {
      * Whether or not the MaterialSearchView will clonse under a click on the Tint View (Blank Area).
      */
     private boolean mShouldCloseOnTintClick;
-
+    
     /**
      * Wheter to keep the search history or not.
      */
@@ -188,7 +188,7 @@ public class MaterialSearchView extends FrameLayout {
     private OnVoiceClickedListener mOnVoiceClickedListener;
     //endregion
 
-    //region Constructors
+    //region Constructors    
     public MaterialSearchView(Context context) {
         this(context, null);
     }
@@ -267,30 +267,6 @@ public class MaterialSearchView extends FrameLayout {
 
         // Initialize the search view.
         initSearchView();
-
-        mAdapter = new CursorSearchAdapter(mContext,getHistoryCursor(),0);
-        mAdapter.setFilterQueryProvider(new FilterQueryProvider() {
-            @Override
-            public Cursor runQuery(CharSequence constraint) {
-                String filter = constraint.toString();
-
-                if (filter.isEmpty()) {
-                    return getHistoryCursor();
-                }
-                else {
-                    return mContext.getContentResolver().query(
-                            HistoryContract.HistoryEntry.CONTENT_URI,
-                            null,
-                            HistoryContract.HistoryEntry.COLUMN_QUERY + " LIKE ?",
-                            new String[]{"%" + filter + "%"},
-                            HistoryContract.HistoryEntry.COLUMN_IS_HISTORY + " DESC, " +
-                                    HistoryContract.HistoryEntry.COLUMN_QUERY
-                    );
-                }
-            }
-        });
-        mSuggestionsListView.setAdapter(mAdapter);
-        mSuggestionsListView.setTextFilterEnabled(true);
     }
 
     /**
@@ -374,7 +350,37 @@ public class MaterialSearchView extends FrameLayout {
             typedArray.recycle();
         }
     }
+    
+    /**
+     * Preforms necessary initializations on the SuggestionsListView.
+     */
+    public void prepareSuggestions() {
+        mAdapter = new CursorSearchAdapter(mContext,getHistoryCursor(),0);
+        mAdapter.setFilterQueryProvider(new FilterQueryProvider() {
+            @Override
+            public Cursor runQuery(CharSequence constraint) {
+                String filter = constraint.toString();
 
+                if (filter.isEmpty()) {
+                    return getHistoryCursor();
+                }
+                else {
+                    return mContext.getContentResolver().query(
+                            HistoryContract.HistoryEntry.CONTENT_URI,
+                            null,
+                            HistoryContract.HistoryEntry.COLUMN_QUERY + " LIKE ?",
+                            new String[]{"%" + filter + "%"},
+                            HistoryContract.HistoryEntry.COLUMN_IS_HISTORY + " DESC, " +
+                                    HistoryContract.HistoryEntry.COLUMN_QUERY
+                    );
+                }
+            }
+        });
+        mSuggestionsListView.setAdapter(mAdapter);
+        mSuggestionsListView.setTextFilterEnabled(true);
+    }
+    //endregion
+    
     /**
      * Preforms necessary initializations on the SearchView.
      */
